@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+      <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+      <script src="../bower_components/web-component-tester/browser.js"></script>
+
+      <link rel="import" href="../bower_components/polymer/polymer.html">
+      <link rel="import" href="../bower_components/test-fixture/test-fixture.html">
+      <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
+      <link rel="import" href="../components/tc-books/tc-books.html">
+
+  </head>
+  <body>
+
+  <test-fixture id="fixture">
+      <template>
+          <tc-books
+                  request-url="http://localhost:3000/api/v1/booksx">
+          </tc-books>
+      </template>
+  </test-fixture>
+
+    <script>
+
+      suite('tc-books', function() {
+
+          var myEl;
+
+          setup(function() {
+              document.getElementById('fixture').create();
+              myEl = document.querySelector('tc-books');
+          });
+
+          teardown(function() {
+              document.getElementById('fixture').restore();
+          });
+
+          suite('ajax element', function() {
+
+              test('is defined', function() {
+                  assert.isDefined(myEl.$.ajax);
+              });
+
+              test('sets auto to true', function() {
+                  assert.isTrue(myEl.$.ajax.auto);
+              });
+
+              test('binds url to requestUrl property', function() {
+                  assert.equal(myEl.$.ajax.url, myEl.requestUrl);
+              });
+
+          });
+
+          suite('toast element', function() {
+
+              test('binds text to requestErrorText property', function() {
+                  myEl.requestErrorText = 'This text is displayed when request fails';
+
+                  assert.equal(myEl.$.toast.text, myEl.requestErrorText);
+              });
+
+          });
+
+          suite('handleError function', function() {
+
+              test('calls toast show method', function() {
+                  myEl.$.toast.show = sinon.mock();
+
+                  myEl.handleError();
+
+                  sinon.assert.calledOnce(myEl.$.toast.show);
+              });
+
+          });
+
+      });
+    </script>
+
+  </body>
+</html>

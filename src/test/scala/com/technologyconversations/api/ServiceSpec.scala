@@ -24,7 +24,8 @@ class ServiceSpec extends Specification with Specs2RouteTest with HttpService wi
   val db = client("books")
   val collection = db("books")
   val apiUri = "/api/v1/books"
-  val staticUri = "/test.html"
+  val staticTestUri = "/test.html"
+  val staticDemoUri = "/components/tc-books/demo"
   val bookId = 1234
 
   def actorRefFactory = system
@@ -32,18 +33,28 @@ class ServiceSpec extends Specification with Specs2RouteTest with HttpService wi
 
   sequential
 
-  s"GET $staticUri" should {
+  s"GET $staticTestUri" should {
 
     "return OK" in {
-      Get(staticUri) ~> staticRoute ~> check {
+      Get(staticTestUri) ~> staticRoute ~> check {
         response.status must equalTo(OK)
       }
     }
 
     "return file content" in {
-      Get(staticUri) ~> staticRoute ~> check {
+      Get(staticTestUri) ~> staticRoute ~> check {
         val content = responseAs[String]
         content must equalTo("This is just a test")
+      }
+    }
+
+  }
+
+  s"GET $staticDemoUri" should {
+
+    "return index.html" in {
+      Get(staticDemoUri) ~> staticRoute ~> check {
+        response.status must equalTo(OK)
       }
     }
 

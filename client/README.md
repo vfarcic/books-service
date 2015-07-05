@@ -14,5 +14,7 @@ Run tests
 =========
 
 ```sh
-gulp test:local
+sudo npm install -g json-server
+json-server test/server/db.json --routes test/server/routes.json
+gulp watch
 ```

@@ -1,0 +1,33 @@
+<dom-module id="tc-books">
+    <style>
+    </style>
+    <template>
+        <iron-ajax id="ajax"
+            auto
+            url="[[requestUrl]]"
+            last-response="{{ajaxResponse}}"
+            on-error="handleError">
+        </iron-ajax>
+        <paper-toast id="toast" text="[[requestErrorText]]"></paper-toast>
+    </template>
+</dom-module>
+<script>
+    (function() {
+        Polymer({
+            is: 'tc-books',
+            properties: {
+                requestUrl: {
+                    type: String,
+                    value: '/api/v1/books'
+                },
+                requestErrorText: {
+                    type: String,
+                    value: 'Something, somewhere, went wrong'
+                }
+            },
+            handleError: function() {
+                this.$.toast.show();
+            }
+        });
+    })();
+</script>

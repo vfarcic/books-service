@@ -4,6 +4,7 @@ import java.io.File
 
 import akka.actor.Actor
 import spray.http.HttpHeaders.RawHeader
+import spray.http.StatusCodes
 import spray.json.DefaultJsonProtocol
 import spray.routing.HttpService
 import spray.httpx.SprayJsonSupport._
@@ -36,7 +37,13 @@ class ServiceActor extends Actor with ServiceRoute with StaticRoute {
 
 trait StaticRoute extends HttpService {
 
-  val staticRoute = pathPrefix("") {
+  val staticRoute = pathPrefix("components" / "tc-books" / "demo") {
+    pathSingleSlash {
+      redirect("/components/tc-books/demo/index.html", StatusCodes.PermanentRedirect)
+    } ~ pathEnd {
+      redirect("/components/tc-books/demo/index.html", StatusCodes.PermanentRedirect)
+    }
+  } ~ pathPrefix("") {
     getFromDirectory("client/")
   }
 

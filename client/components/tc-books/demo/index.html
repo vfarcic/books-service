@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <title>Technology Conversations.com - Books</title>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../../bower_components/polymer/polymer.html">
+    <link rel="import" href="../../../bower_components/paper-styles/demo-pages.html">
+    <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+    <link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+
+    <link rel="import" href="../tc-books.html">
+</head>
+<body>
+    <tc-books id="tc-books"
+        request-url="http://localhost:3000/api/v1/books">
+    </tc-books>
+
+    <!--<tc-books id="tc-books-nok"-->
+        <!--request-url="/this/url/does/not/exist"-->
+        <!--request-error-text="This is just a showcase of situation when a request would fail">-->
+    <!--</tc-books>-->
+</body>
+</html>
