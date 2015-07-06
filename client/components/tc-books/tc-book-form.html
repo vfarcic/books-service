@@ -11,24 +11,24 @@
     </style>
     <template>
         <iron-ajax id="getAjax"
-            auto
-            on-error="handleGetError"
-            url="[[fullRequestUrl]]">
+            on-error="_handleGetError"
+            on-response="_handleGetResponse">
         </iron-ajax>
         <iron-ajax id="putAjax"
             method="PUT"
-            on-error="handlePutError"
+            on-response="_handlePutResponse"
+            on-error="_handlePutError"
             handle-as="json"
             content-type="application/json"
             url="[[requestUrl]]">
         </iron-ajax>
         <div>
             <form id="form">
-                <paper-input id="_id" label="ID" value="{{data._id}}" auto-validate pattern="[1-9][0-9]*" required error-message="Must be a number"></paper-input>
-                <paper-input id="title" label="Title" value="{{data.title}}" auto-validate required error-message="Title is required"></paper-input>
-                <paper-input id="author" label="Author" value="{{data.author}}" auto-validate required error-message="Author is required"></paper-input>
-                <paper-textarea id="description" label="Description" value="{{data.description}}"></paper-textarea>
-                <paper-button id="submit" raised on-tap="submit">[[submitText]]</paper-button>
+                <paper-input id="_id" label="ID" value="{{_data._id}}" auto-validate pattern="[1-9][0-9]*" required error-message="Must be a number"></paper-input>
+                <paper-input id="title" label="Title" value="{{_data.title}}" auto-validate required error-message="Title is required"></paper-input>
+                <paper-input id="author" label="Author" value="{{_data.author}}" auto-validate required error-message="Author is required"></paper-input>
+                <paper-textarea id="description" label="Description" value="{{_data.description}}"></paper-textarea>
+                <paper-button id="submit" raised on-tap="_submit">[[_submitText]]</paper-button>
                 <!--TODO: Add delete button-->
             </form>
         </div>
@@ -48,60 +48,56 @@
                     type: String,
                     value: 'Something, somewhere, went wrong'
                 },
-                bookId: {
-                    type: Number,
-                    value: 0
-                },
-                fullRequestUrl: {
-                    type: String,
-                    computed: 'computeFullRequestUrl(requestUrl, bookId)'
-                },
-                data: {
+                _data: {
                     type: Object,
                     value: {}
                 },
-                submitText: {
+                _submitText: {
                     type: String,
-                    computed: 'computeSubmitText(bookId)'
+                    computed: '_computeSubmitText(_data._id)'
                 }
             },
-            handleError: function(text) {
+            open: function(bookId) {
+                if (bookId > 0) {
+                    this.$.getAjax.url = this.requestUrl + '/_id/' + bookId;
+                    this.$.getAjax.generateRequest();
+                } else {
+                    this._data = {};
+                }
+            },
+            _handleError: function(text) {
                 this.errorText = text;
                 this.$.toast.show();
             },
-            handleGetError: function() {
-                this.handleError('The book could not be retrieved from the server');
+            _handleGetError: function() {
+                this._handleError('The book could not be retrieved from the server');
             },
-            computeFullRequestUrl: function(url, bookId) {
-                if (bookId == 0) {
-                    return '';
-                }
-                return url + '/_id/' + bookId
-            },
-            open: function(bookId) {
-                this.bookId = bookId;
-            },
-            computeSubmitText: function(bookId) {
+            _computeSubmitText: function(bookId) {
                 if (bookId > 0) {
                     return 'Update';
                 }
                 return 'Insert';
             },
-            handlePutError: function() {
-                this.handleError('The book could not be stored in the server');
+            _handlePutError: function() {
+                this._handleError('The book could not be stored in the server');
             },
-            submit: function() {
+            _handlePutResponse: function() {
+                this.fire('putBook', this._data);
+            },
+            _submit: function() {
                 if (this.$.form.checkValidity()) {
                     // This is a workaround.
                     // _id should be sent as number
-                    this.data._id = parseInt(this.data._id);
+                    this.set('_data._id', parseInt(this._data._id));
                     // iron-ajax does not stringify object
-                    this.$.putAjax.body = JSON.stringify(this.data);
+                    this.$.putAjax.body = JSON.stringify(this._data);
                     this.$.putAjax.generateRequest();
-                    // TODO: Fire event
                 } else {
-                    this.handleError('At least one field is invalid.');
+                    this._handleError('At least one field is invalid.');
                 }
+            },
+            _handleGetResponse: function(e) {
+                this._data = e.detail.response;
             }
         });
     })();

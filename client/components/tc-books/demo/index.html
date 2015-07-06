@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
-    <title>Technology Conversations.com - Books</title>
+    <title>TechnologyConversations.com - Books</title>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -58,12 +58,20 @@
 </div>
 <paper-toast id="toast" text="[[requestErrorText]]"></paper-toast>
 <script>
-    var myEl = document.querySelector('#tc-books');
+    var tcBooks = document.querySelector('#tc-books');
+    var tcBookForm = document.querySelector('#tc-book-form');
     var toast = document.querySelector('#toast');
-    myEl.addEventListener('openBook', onOpenBook);
+    tcBooks.addEventListener('openBook', onOpenBook);
+    tcBookForm.addEventListener('putBook', onPutBook);
     function onOpenBook(e) {
-        toast.text = 'You clicked the "' + e.detail.title + '".';
+        toast.text = '"' + e.detail.title + '" has been selected.';
         toast.show();
+        tcBookForm.open(e.detail._id);
+    }
+    function onPutBook(e) {
+        toast.text = '"' + e.detail.title + '" has been saved.';
+        toast.show();
+        tcBooks.refresh();
     }
 </script>
 </body>

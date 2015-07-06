@@ -47,13 +47,13 @@
 
           });
 
-          describe('handleError function', function() {
+          describe('_handleError function', function() {
 
               it('calls toast show method', function() {
                   var el = fixture('fixture');
                   el.$.toast.show = sinon.mock();
 
-                  el.handleError();
+                  el._handleError();
 
                   sinon.assert.calledOnce(el.$.toast.show);
               });
@@ -61,52 +61,23 @@
               it('sets error text property', function() {
                   var expected = 'Panic!!!';
 
-                  myEl.handleError(expected);
+                  myEl._handleError(expected);
 
                   assert.equal(myEl.errorText, expected);
               });
 
           });
 
-          describe('handleGetError function', function() {
+          describe('_handleGetError function', function() {
 
-              it('calls handleError', function() {
+              it('calls _handleError', function() {
                   var el = fixture('fixture');
-                  el.handleError = sinon.mock();
+                  el._handleError = sinon.mock();
 
-                  el.handleGetError();
+                  el._handleGetError();
 
-                  sinon.assert.calledOnce(el.handleError);
-                  sinon.assert.calledWith(el.handleError, 'The book could not be retrieved from the server');
-              });
-
-          });
-
-          describe('computeRequestUrl function', function() {
-
-              it('returns full request URL', function() {
-                  var url = myEl.computeFullRequestUrl(myEl.requestUrl, 123);
-
-                  assert.equal(url, myEl.requestUrl + '/_id/' + 123);
-              });
-
-              it('returns empty when bookId is 0', function() {
-                  var url = myEl.computeFullRequestUrl(myEl.requestUrl, 0);
-
-                  assert.equal(url, '');
-              });
-
-          });
-
-          describe('fullRequestUrl property', function() {
-
-              it('returns computeRequestUrl', function() {
-                  var el = fixture('fixture');
-                  var expected = 'Something';
-                  el.computeFullRequestUrl = sinon.mock().returns(expected);
-                  el.bookId = 123;
-
-                  assert.equal(el.fullRequestUrl, expected);
+                  sinon.assert.calledOnce(el._handleError);
+                  sinon.assert.calledWith(el._handleError, 'The book could not be retrieved from the server');
               });
 
           });
@@ -117,13 +88,33 @@
                   assert.isDefined(myEl.open)
               });
 
-              it('sets bookId property', function() {
-                  var expected = 123;
+              it('sets getAjax.url', function() {
+                  var bookId = 584;
+                  myEl.requestUrl = '/url/to/my/service';
 
-                  myEl.open(expected);
+                  myEl.open(bookId);
 
-                  assert.equal(myEl.bookId, expected);
-              })
+                  assert.equal(myEl.$.getAjax.url, myEl.requestUrl + '/_id/' + bookId);
+              });
+
+              it('calls getAjax.generateRequest', function() {
+                  var el = fixture('fixture');
+                  el.$.getAjax.generateRequest = sinon.mock();
+
+                  el.open(373);
+
+                  sinon.assert.calledOnce(el.$.getAjax.generateRequest);
+              });
+
+              it('resets _data when bookId is 0', function() {
+                  var data = {something: 'else'};
+                  myEl._data = data;
+
+                  myEl.open(0);
+
+                  assert.notEqual(myEl._data, data);
+                  assert.isUndefined(myEl._data._id);
+              });
 
           });
 
@@ -133,23 +124,13 @@
                   assert.isDefined(myEl.$.getAjax);
               });
 
-              it('sets auto to true', function() {
-                  assert.isTrue(myEl.$.getAjax.auto);
-              });
-
-              it('binds url to fullRequestUrl property', function() {
-                  myEl.bookId = 123;
-
-                  assert.equal(myEl.$.getAjax.url, myEl.fullRequestUrl);
-              });
-
           });
 
-          describe('data property', function() {
+          describe('_data property', function() {
 
               it('is defined', function() {
-                  assert.isDefined(myEl.data);
-                  assert.isObject(myEl.data);
+                  assert.isDefined(myEl._data);
+                  assert.isObject(myEl._data);
               });
 
           });
@@ -160,10 +141,10 @@
                   assert.equal(myEl.$._id.label, 'ID');
               });
 
-              it('binds to data._id property', function() {
-                  myEl.data = {_id: 123};
+              it('binds to _data._id property', function() {
+                  myEl._data = {_id: 123};
 
-                  assert.equal(myEl.$._id.value, myEl.data._id);
+                  assert.equal(myEl.$._id.value, myEl._data._id);
               });
 
               it('sets auto-validate', function() {
@@ -200,10 +181,10 @@
                   assert.equal(myEl.$.title.label, 'Title');
               });
 
-              it('binds to data.title property', function() {
-                  myEl.data = {title: 'Title of the book'};
+              it('binds to _data.title property', function() {
+                  myEl._data = {title: 'Title of the book'};
 
-                  assert.equal(myEl.$.title.value, myEl.data.title);
+                  assert.equal(myEl.$.title.value, myEl._data.title);
               });
 
               it('sets auto-validate', function() {
@@ -228,10 +209,10 @@
                   assert.equal(myEl.$.author.label, 'Author');
               });
 
-              it('binds to data.author property', function() {
-                  myEl.data = {author: 'Book Author'};
+              it('binds to _data.author property', function() {
+                  myEl._data = {author: 'Book Author'};
 
-                  assert.equal(myEl.$.author.value, myEl.data.author);
+                  assert.equal(myEl.$.author.value, myEl._data.author);
               });
 
               it('sets auto-validate', function() {
@@ -250,70 +231,70 @@
                   assert.equal(myEl.$.description.label, 'Description');
               });
 
-              it('binds to data.description property', function() {
-                  myEl.data = {description: 'Book description'};
+              it('binds to _data.description property', function() {
+                  myEl._data = {description: 'Book description'};
 
-                  assert.equal(myEl.$.description.value, myEl.data.description);
+                  assert.equal(myEl.$.description.value, myEl._data.description);
               });
 
           });
 
-          describe('computeSubmitText function', function() {
+          describe('_computeSubmitText function', function() {
 
               it('is defined', function() {
-                  assert.isDefined(myEl.computeSubmitText);
+                  assert.isDefined(myEl._computeSubmitText);
               });
 
               it('returns Insert when bookId is 0', function() {
-                  assert.equal(myEl.computeSubmitText(0), 'Insert');
+                  assert.equal(myEl._computeSubmitText(0), 'Insert');
               });
 
               it('returns Update when bookId is greater than 0', function() {
-                  assert.equal(myEl.computeSubmitText(123), 'Update');
+                  assert.equal(myEl._computeSubmitText(123), 'Update');
               });
 
           });
 
-          describe('submitText function', function() {
+          describe('_submitText function', function() {
 
-              it('returns computeSubmitText value', function() {
+              it('returns _computeSubmitText value', function() {
                   var el = fixture('fixture');
                   var expected = 'Something';
-                  el.computeSubmitText = sinon.mock().returns(expected);
-                  el.bookId = 123;
+                  el._computeSubmitText = sinon.mock().returns(expected);
+                  el.set('_data._id', 321);
 
-                  assert.equal(el.submitText, expected);
+                  assert.equal(el._submitText, expected);
               });
 
           });
 
           describe('submit element', function() {
 
-              it('binds text to submitText property', function() {
-                  assert.equal(myEl.$.submit.textContent.trim(), myEl.submitText);
+              it('binds text to _submitText property', function() {
+                  assert.equal(myEl.$.submit.textContent.trim(), myEl._submitText);
               });
 
-              it('calls submit function on click', function() {
+              it('calls _submit function on click', function() {
                   var el = fixture('fixture');
-                  el.submit = sinon.mock();
+                  el._submit = sinon.mock();
 
                   el.$.submit.click();
 
-                  sinon.assert.calledOnce(el.submit);
+                  sinon.assert.calledOnce(el._submit);
               });
 
           });
 
-          describe('handlePutError function', function() {
+          describe('_handlePutError function', function() {
 
-              it('calls handleError', function() {
+              it('calls _handleError', function() {
                   var el = fixture('fixture');
-                  el.handleError = sinon.mock();
+                  el._handleError = sinon.mock();
 
-                  el.handlePutError();
+                  el._handlePutError();
 
-                  sinon.assert.calledOnce(el.handleError);
-                  sinon.assert.calledWith(el.handleError, 'The book could not be stored in the server');
+                  sinon.assert.calledOnce(el._handleError);
+                  sinon.assert.calledWith(el._handleError, 'The book could not be stored in the server');
               });
 
           });
@@ -336,7 +317,25 @@
 
           });
 
-          describe('submit function', function() {
+          describe('_handlePutResponse', function() {
+
+              it('should fire putBook event', function() {
+                  myEl._data = {something: 'else'};
+                  var actual;
+                  var onPutBook = sinon.spy(function(e) {
+                      actual = e.detail;
+                  });
+                  myEl.addEventListener('putBook', onPutBook);
+
+                  myEl._handlePutResponse();
+
+                  sinon.assert.calledOnce(onPutBook);
+                  assert.equal(actual, myEl._data);
+              });
+
+          });
+
+          describe('_submit function', function() {
 
               var el;
 
@@ -346,31 +345,49 @@
                   el.$.putAjax.generateRequest = sinon.mock();
               });
 
-              it('should set data property to putAjax.body', function() {
+              it('should set _data property to putAjax.body', function() {
                   // Should be with _id as number
                   var expected = JSON.stringify({_id: 123, title: "Book Title"})
-                  // data stores _id as string
-                  el.data = {_id: "123", title: "Book Title"};
+                  // _data stores _id as string
+                  el._data = {_id: "123", title: "Book Title"};
 
-                  el.submit();
+                  el._submit();
 
                   assert.equal(el.$.putAjax.body, expected);
               });
 
               it('should call putAjax.generateRequest', function() {
-                  el.submit();
+                  el._submit();
 
                   sinon.assert.calledOnce(el.$.putAjax.generateRequest);
               });
 
-              it('should call handleError when form is invalid', function() {
-                  el.handleError = sinon.mock();
+              it('should call _handleError when form is invalid', function() {
+                  el._handleError = sinon.mock();
                   el.$.form.checkValidity = sinon.mock().returns(false);
 
-                  el.submit();
+                  el._submit();
 
-                  sinon.assert.calledOnce(el.handleError);
-                  sinon.assert.calledWith(el.handleError, 'At least one field is invalid.');
+                  sinon.assert.calledOnce(el._handleError);
+                  sinon.assert.calledWith(el._handleError, 'At least one field is invalid.');
+              });
+
+          });
+
+          describe('_handleGetResponse function', function() {
+
+              it('sets _data property', function() {
+                  var expected = {something: 'not seen before'};
+                  var event = {
+                      detail: {
+                          response: expected
+                      }
+                  };
+                  myEl._data = {};
+
+                  myEl._handleGetResponse(event);
+
+                  assert.equal(myEl._data, expected);
               });
 
           });

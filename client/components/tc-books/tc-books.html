@@ -14,11 +14,11 @@
             auto
             url="[[requestUrl]]"
             last-response="{{ajaxResponse}}"
-            on-error="handleError">
+            on-error="_handleError">
         </iron-ajax>
         <template is="dom-repeat" items="[[ajaxResponse]]">
             <div>
-                <paper-button class="button-flat" on-tap="openBook">[[item.title]]</paper-button>
+                <paper-button class="button-flat" on-tap="_openBook">[[item.title]]</paper-button>
             </div>
         </template>
         <paper-toast id="toast" text="[[requestErrorText]]"></paper-toast>
@@ -38,10 +38,13 @@
                     value: 'Something, somewhere, went wrong'
                 }
             },
-            handleError: function() {
+            refresh: function() {
+                this.$.ajax.generateRequest();
+            },
+            _handleError: function() {
                 this.$.toast.show();
             },
-            openBook: function(e) {
+            _openBook: function(e) {
                 this.fire('openBook', e.model.item);
             }
         });
