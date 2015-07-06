@@ -9,20 +9,62 @@
     <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
 
     <link rel="import" href="../../../bower_components/polymer/polymer.html">
+    <link rel="import" href="../../../bower_components/paper-styles/paper-styles.html">
     <link rel="import" href="../../../bower_components/paper-styles/demo-pages.html">
     <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
     <link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+    <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+    <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+    <link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
 
     <link rel="import" href="../tc-books.html">
+    <link rel="import" href="../tc-book-form.html">
+
+    <style is="custom-style">
+        .demo {
+            padding: 5px;
+            background-color: white;
+            display: inline-block;
+            margin: 5px;
+            @apply(--shadow-elevation-2dp);
+        }
+        h1 {
+            margin-left: 24px;
+        }
+        :root {
+            --button-color: var(--paper-blue-900);
+            --button-background: white;
+        }
+    </style>
 </head>
 <body>
-    <tc-books id="tc-books"
-        request-url="http://localhost:3000/api/v1/books">
-    </tc-books>
-
+<div class="layout wrap inline center-center">
+    <div>
+        <h1>Book Form</h1>
+        <div class="demo">
+            <tc-book-form id="tc-book-form"></tc-book-form>
+        </div>
+    </div>
+    <div>
+        <h1>Books List</h1>
+        <div class="demo">
+            <tc-books id="tc-books"></tc-books>
+        </div>
+    </div>
     <!--<tc-books id="tc-books-nok"-->
         <!--request-url="/this/url/does/not/exist"-->
-        <!--request-error-text="This is just a showcase of situation when a request would fail">-->
+        <!--request-error-text="This is just a showcase of a situation when a request would fail">-->
     <!--</tc-books>-->
+</div>
+<paper-toast id="toast" text="[[requestErrorText]]"></paper-toast>
+<script>
+    var myEl = document.querySelector('#tc-books');
+    var toast = document.querySelector('#toast');
+    myEl.addEventListener('openBook', onOpenBook);
+    function onOpenBook(e) {
+        toast.text = 'You clicked the "' + e.detail.title + '".';
+        toast.show();
+    }
+</script>
 </body>
 </html>

@@ -6,10 +6,12 @@
 
       <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
       <script src="../bower_components/web-component-tester/browser.js"></script>
+      <script src="../bower_components/test-fixture/test-fixture-mocha.js"></script>
 
       <link rel="import" href="../bower_components/polymer/polymer.html">
       <link rel="import" href="../bower_components/test-fixture/test-fixture.html">
       <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+      <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
       <link rel="import" href="../components/tc-books/tc-books.html">
 
@@ -18,46 +20,39 @@
 
   <test-fixture id="fixture">
       <template>
-          <tc-books
-                  request-url="http://localhost:3000/api/v1/booksx">
-          </tc-books>
+          <tc-books request-url="http://localhost:3000/api/v1/books"></tc-books>
       </template>
   </test-fixture>
 
     <script>
 
-      suite('tc-books', function() {
+      describe('tc-books', function() {
 
           var myEl;
 
-          setup(function() {
-              document.getElementById('fixture').create();
-              myEl = document.querySelector('tc-books');
+          before(function() {
+              myEl = fixture('fixture');
           });
 
-          teardown(function() {
-              document.getElementById('fixture').restore();
-          });
+          describe('ajax element', function() {
 
-          suite('ajax element', function() {
-
-              test('is defined', function() {
+              it('is defined', function() {
                   assert.isDefined(myEl.$.ajax);
               });
 
-              test('sets auto to true', function() {
+              it('sets auto to true', function() {
                   assert.isTrue(myEl.$.ajax.auto);
               });
 
-              test('binds url to requestUrl property', function() {
+              it('binds url to requestUrl property', function() {
                   assert.equal(myEl.$.ajax.url, myEl.requestUrl);
               });
 
           });
 
-          suite('toast element', function() {
+          describe('toast element', function() {
 
-              test('binds text to requestErrorText property', function() {
+              it('binds text to requestErrorText property', function() {
                   myEl.requestErrorText = 'This text is displayed when request fails';
 
                   assert.equal(myEl.$.toast.text, myEl.requestErrorText);
@@ -65,14 +60,39 @@
 
           });
 
-          suite('handleError function', function() {
+          describe('handleError function', function() {
 
-              test('calls toast show method', function() {
+              it('calls toast show method', function() {
                   myEl.$.toast.show = sinon.mock();
 
                   myEl.handleError();
 
                   sinon.assert.calledOnce(myEl.$.toast.show);
+              });
+
+          });
+
+          describe('openBook function', function() {
+
+              it('should fire openBook event', function() {
+                  var item = {
+                      title: "An interesting book"
+                  };
+                  var event = {
+                      model: {
+                          item: item
+                      }
+                  };
+                  var actual;
+                  var onOpenBook = sinon.spy(function(e) {
+                      actual = e.detail;
+                  });
+                  myEl.addEventListener('openBook', onOpenBook);
+
+                  myEl.openBook(event);
+
+                  sinon.assert.calledOnce(onOpenBook);
+                  assert.equal(actual, item);
               });
 
           });

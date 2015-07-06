@@ -1,5 +1,13 @@
 <dom-module id="tc-books">
     <style>
+        .button-flat {
+            color: var(--button-color);
+            background: var(--button-background);
+        }
+        .button-flat:hover {
+            color: var(--button-background);
+            background: var(--button-color);
+        }
     </style>
     <template>
         <iron-ajax id="ajax"
@@ -8,6 +16,11 @@
             last-response="{{ajaxResponse}}"
             on-error="handleError">
         </iron-ajax>
+        <template is="dom-repeat" items="[[ajaxResponse]]">
+            <div>
+                <paper-button class="button-flat" on-tap="openBook">[[item.title]]</paper-button>
+            </div>
+        </template>
         <paper-toast id="toast" text="[[requestErrorText]]"></paper-toast>
     </template>
 </dom-module>
@@ -27,6 +40,9 @@
             },
             handleError: function() {
                 this.$.toast.show();
+            },
+            openBook: function(e) {
+                this.fire('openBook', e.model.item);
             }
         });
     })();

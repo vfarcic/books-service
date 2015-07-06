@@ -1,0 +1,382 @@
+<!doctype html>
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+      <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+      <script src="../bower_components/web-component-tester/browser.js"></script>
+      <script src="../bower_components/test-fixture/test-fixture-mocha.js"></script>
+
+      <link rel="import" href="../bower_components/polymer/polymer.html">
+      <link rel="import" href="../bower_components/test-fixture/test-fixture.html">
+      <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+      <link rel="import" href="../bower_components/paper-button/paper-button.html">
+      <link rel="import" href="../bower_components/paper-input/paper-input.html">
+      <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+      <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+
+      <link rel="import" href="../components/tc-books/tc-book-form.html">
+
+  </head>
+  <body>
+
+  <test-fixture id="fixture">
+      <template>
+          <tc-book-form></tc-book-form>
+      </template>
+  </test-fixture>
+
+    <script>
+
+      describe('tc-book-form', function() {
+
+          var myEl;
+
+          before(function() {
+              myEl = fixture('fixture');
+          });
+
+          describe('toast element', function() {
+
+              it('binds text to errorText property', function() {
+                  myEl.errorText = 'This text is displayed when request fails';
+
+                  assert.equal(myEl.$.toast.text, myEl.errorText);
+              });
+
+          });
+
+          describe('handleError function', function() {
+
+              it('calls toast show method', function() {
+                  var el = fixture('fixture');
+                  el.$.toast.show = sinon.mock();
+
+                  el.handleError();
+
+                  sinon.assert.calledOnce(el.$.toast.show);
+              });
+
+              it('sets error text property', function() {
+                  var expected = 'Panic!!!';
+
+                  myEl.handleError(expected);
+
+                  assert.equal(myEl.errorText, expected);
+              });
+
+          });
+
+          describe('handleGetError function', function() {
+
+              it('calls handleError', function() {
+                  var el = fixture('fixture');
+                  el.handleError = sinon.mock();
+
+                  el.handleGetError();
+
+                  sinon.assert.calledOnce(el.handleError);
+                  sinon.assert.calledWith(el.handleError, 'The book could not be retrieved from the server');
+              });
+
+          });
+
+          describe('computeRequestUrl function', function() {
+
+              it('returns full request URL', function() {
+                  var url = myEl.computeFullRequestUrl(myEl.requestUrl, 123);
+
+                  assert.equal(url, myEl.requestUrl + '/_id/' + 123);
+              });
+
+              it('returns empty when bookId is 0', function() {
+                  var url = myEl.computeFullRequestUrl(myEl.requestUrl, 0);
+
+                  assert.equal(url, '');
+              });
+
+          });
+
+          describe('fullRequestUrl property', function() {
+
+              it('returns computeRequestUrl', function() {
+                  var el = fixture('fixture');
+                  var expected = 'Something';
+                  el.computeFullRequestUrl = sinon.mock().returns(expected);
+                  el.bookId = 123;
+
+                  assert.equal(el.fullRequestUrl, expected);
+              });
+
+          });
+
+          describe('open function', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl.open)
+              });
+
+              it('sets bookId property', function() {
+                  var expected = 123;
+
+                  myEl.open(expected);
+
+                  assert.equal(myEl.bookId, expected);
+              })
+
+          });
+
+          describe('getAjax element', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl.$.getAjax);
+              });
+
+              it('sets auto to true', function() {
+                  assert.isTrue(myEl.$.getAjax.auto);
+              });
+
+              it('binds url to fullRequestUrl property', function() {
+                  myEl.bookId = 123;
+
+                  assert.equal(myEl.$.getAjax.url, myEl.fullRequestUrl);
+              });
+
+          });
+
+          describe('data property', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl.data);
+                  assert.isObject(myEl.data);
+              });
+
+          });
+
+          describe('_id element', function() {
+
+              it('sets label', function() {
+                  assert.equal(myEl.$._id.label, 'ID');
+              });
+
+              it('binds to data._id property', function() {
+                  myEl.data = {_id: 123};
+
+                  assert.equal(myEl.$._id.value, myEl.data._id);
+              });
+
+              it('sets auto-validate', function() {
+                  assert.isTrue(myEl.$._id.autoValidate);
+              });
+
+              it('accepts only numbers', function() {
+                  myEl.$._id.value = 'this is not a number';
+
+                  assert.isFalse(myEl.$._id.validate());
+              });
+
+              it('does not accept leading 0', function() {
+                  myEl.$._id.value = '0123';
+
+                  assert.isFalse(myEl.$._id.validate());
+              });
+
+              it('is required', function() {
+                  myEl.$._id.value = '';
+
+                  assert.isFalse(myEl.$._id.validate());
+              });
+
+              it('sets error message', function() {
+                  assert.equal(myEl.$._id.errorMessage, 'Must be a number');
+              });
+
+          });
+
+          describe('title element', function() {
+
+              it('sets label', function() {
+                  assert.equal(myEl.$.title.label, 'Title');
+              });
+
+              it('binds to data.title property', function() {
+                  myEl.data = {title: 'Title of the book'};
+
+                  assert.equal(myEl.$.title.value, myEl.data.title);
+              });
+
+              it('sets auto-validate', function() {
+                  assert.isTrue(myEl.$.title.autoValidate);
+              });
+
+              it('is required', function() {
+                  myEl.$.title.value = '';
+
+                  assert.isFalse(myEl.$.title.validate());
+              });
+
+              it('sets error message', function() {
+                  assert.equal(myEl.$.title.errorMessage, 'Title is required');
+              });
+
+          });
+
+          describe('author element', function() {
+
+              it('sets label', function() {
+                  assert.equal(myEl.$.author.label, 'Author');
+              });
+
+              it('binds to data.author property', function() {
+                  myEl.data = {author: 'Book Author'};
+
+                  assert.equal(myEl.$.author.value, myEl.data.author);
+              });
+
+              it('sets auto-validate', function() {
+                  assert.isTrue(myEl.$.author.autoValidate);
+              });
+
+              it('sets error message', function() {
+                  assert.equal(myEl.$.author.errorMessage, 'Author is required');
+              });
+
+          });
+
+          describe('description element', function() {
+
+              it('sets label', function() {
+                  assert.equal(myEl.$.description.label, 'Description');
+              });
+
+              it('binds to data.description property', function() {
+                  myEl.data = {description: 'Book description'};
+
+                  assert.equal(myEl.$.description.value, myEl.data.description);
+              });
+
+          });
+
+          describe('computeSubmitText function', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl.computeSubmitText);
+              });
+
+              it('returns Insert when bookId is 0', function() {
+                  assert.equal(myEl.computeSubmitText(0), 'Insert');
+              });
+
+              it('returns Update when bookId is greater than 0', function() {
+                  assert.equal(myEl.computeSubmitText(123), 'Update');
+              });
+
+          });
+
+          describe('submitText function', function() {
+
+              it('returns computeSubmitText value', function() {
+                  var el = fixture('fixture');
+                  var expected = 'Something';
+                  el.computeSubmitText = sinon.mock().returns(expected);
+                  el.bookId = 123;
+
+                  assert.equal(el.submitText, expected);
+              });
+
+          });
+
+          describe('submit element', function() {
+
+              it('binds text to submitText property', function() {
+                  assert.equal(myEl.$.submit.textContent.trim(), myEl.submitText);
+              });
+
+              it('calls submit function on click', function() {
+                  var el = fixture('fixture');
+                  el.submit = sinon.mock();
+
+                  el.$.submit.click();
+
+                  sinon.assert.calledOnce(el.submit);
+              });
+
+          });
+
+          describe('handlePutError function', function() {
+
+              it('calls handleError', function() {
+                  var el = fixture('fixture');
+                  el.handleError = sinon.mock();
+
+                  el.handlePutError();
+
+                  sinon.assert.calledOnce(el.handleError);
+                  sinon.assert.calledWith(el.handleError, 'The book could not be stored in the server');
+              });
+
+          });
+
+          describe('putAjax element', function() {
+
+              it('sets method to PUT', function() {
+                  assert.equal(myEl.$.putAjax.method, 'PUT');
+              });
+
+              it('sets content-type', function() {
+                  assert.equal(myEl.$.putAjax.contentType, 'application/json');
+              });
+
+              it('binds url to requestUrl property', function() {
+                  myEl.requestUrl = '/api/my/service';
+
+                  assert.equal(myEl.$.putAjax.url, myEl.requestUrl);
+              });
+
+          });
+
+          describe('submit function', function() {
+
+              var el;
+
+              beforeEach(function() {
+                  el = fixture('fixture');
+                  el.$.form.checkValidity = sinon.mock().returns(true);
+                  el.$.putAjax.generateRequest = sinon.mock();
+              });
+
+              it('should set data property to putAjax.body', function() {
+                  // Should be with _id as number
+                  var expected = JSON.stringify({_id: 123, title: "Book Title"})
+                  // data stores _id as string
+                  el.data = {_id: "123", title: "Book Title"};
+
+                  el.submit();
+
+                  assert.equal(el.$.putAjax.body, expected);
+              });
+
+              it('should call putAjax.generateRequest', function() {
+                  el.submit();
+
+                  sinon.assert.calledOnce(el.$.putAjax.generateRequest);
+              });
+
+              it('should call handleError when form is invalid', function() {
+                  el.handleError = sinon.mock();
+                  el.$.form.checkValidity = sinon.mock().returns(false);
+
+                  el.submit();
+
+                  sinon.assert.calledOnce(el.handleError);
+                  sinon.assert.calledWith(el.handleError, 'At least one field is invalid.');
+              });
+
+          });
+
+      });
+    </script>
+
+  </body>
+</html>
