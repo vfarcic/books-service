@@ -1,12 +1,12 @@
 <dom-module id="tc-book-form">
     <style>
-        .button {
-            color: var(--button-color);
-            background: var(--button-background);
+        .mainButton {
+            color: var(--button-main-color);
+            background: var(--button-main-background);
         }
-        .button:hover {
-            color: var(--button-background);
-            background: var(--button-color);
+        .warningButton {
+            color: var(--button-warning-color);
+            background: var(--button-warning-background);
         }
     </style>
     <template>
@@ -18,9 +18,13 @@
             method="PUT"
             on-response="_handlePutResponse"
             on-error="_handlePutError"
-            handle-as="json"
             content-type="application/json"
             url="[[requestUrl]]">
+        </iron-ajax>
+        <iron-ajax id="deleteAjax"
+            method="DELETE"
+            on-response="_handleDeleteResponse"
+            on-error="_handleDeleteError">
         </iron-ajax>
         <div>
             <form id="form">
@@ -28,8 +32,8 @@
                 <paper-input id="title" label="Title" value="{{_data.title}}" auto-validate required error-message="Title is required"></paper-input>
                 <paper-input id="author" label="Author" value="{{_data.author}}" auto-validate required error-message="Author is required"></paper-input>
                 <paper-textarea id="description" label="Description" value="{{_data.description}}"></paper-textarea>
-                <paper-button id="submit" raised on-tap="_submit">[[_submitText]]</paper-button>
-                <!--TODO: Add delete button-->
+                <paper-button id="delete" class="warningButton" raised on-tap="_delete">[[deleteText]]</paper-button>
+                <paper-button id="submit" class="mainButton" raised on-tap="_submit">[[submitText]]</paper-button>
             </form>
         </div>
         <paper-toast id="toast" text="[[errorText]]"></paper-toast>
@@ -48,22 +52,31 @@
                     type: String,
                     value: 'Something, somewhere, went wrong'
                 },
+                submitText: {
+                    type: String,
+                    value: 'Submit'
+                },
+                deleteText: {
+                    type: String,
+                    value: 'Delete'
+                },
                 _data: {
                     type: Object,
                     value: {}
-                },
-                _submitText: {
-                    type: String,
-                    computed: '_computeSubmitText(_data._id)'
                 }
             },
             open: function(bookId) {
                 if (bookId > 0) {
                     this.$.getAjax.url = this.requestUrl + '/_id/' + bookId;
                     this.$.getAjax.generateRequest();
+                    this.$.delete.hidden = false;
                 } else {
-                    this._data = {};
+                    this._data = {description: ''};
+                    this.$.delete.hidden = true;
                 }
+            },
+            ready: function() {
+                this.open(0);
             },
             _handleError: function(text) {
                 this.errorText = text;
@@ -72,17 +85,12 @@
             _handleGetError: function() {
                 this._handleError('The book could not be retrieved from the server');
             },
-            _computeSubmitText: function(bookId) {
-                if (bookId > 0) {
-                    return 'Update';
-                }
-                return 'Insert';
-            },
             _handlePutError: function() {
                 this._handleError('The book could not be stored in the server');
             },
             _handlePutResponse: function() {
                 this.fire('putBook', this._data);
+                this.$.delete.hidden = false;
             },
             _submit: function() {
                 if (this.$.form.checkValidity()) {
@@ -98,6 +106,18 @@
             },
             _handleGetResponse: function(e) {
                 this._data = e.detail.response;
+            },
+            _delete: function() {
+                this.$.deleteAjax.url = this.requestUrl + '/_id/' + this._data._id;
+                this.$.deleteAjax.generateRequest();
+            },
+            _handleDeleteResponse: function() {
+                var data = this._data;
+                this.open(0);
+                this.fire('deleteBook', data);
+            },
+            _handleDeleteError: function() {
+                this._handleError('The book could not be removed from the server');
             }
         });
     })();

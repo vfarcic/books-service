@@ -74,7 +74,7 @@
 
           describe('_openBook function', function() {
 
-              it('should fire openBook event', function() {
+              it('fires openBook event', function() {
                   var item = {
                       title: "An interesting book"
                   };
@@ -107,6 +107,56 @@
 
                   sinon.assert.calledOnce(el.$.ajax.generateRequest);
               });
+
+          });
+
+          describe('newBookText property', function() {
+
+              it('is defined', function() {
+                  assert.isString(myEl.newBookText);
+                  assert.equal(myEl.newBookText, 'New Book');
+              });
+
+          });
+
+          describe('newBook element', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl.$.newBook);
+              });
+
+              it('binds to newBookText property', function() {
+                  myEl.newBookText = 'New and Fancy Book';
+
+                  assert.equal(myEl.$.newBook.textContent.trim(), myEl.newBookText);
+              });
+
+              it('calls newBook function on click', function() {
+                  var el = fixture('fixture');
+                  el._newBook = sinon.mock();
+
+                  el.$.newBook.click();
+
+                  sinon.assert.calledOnce(el._newBook);
+              });
+
+          });
+
+          describe('_newBook function', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl._newBook);
+              });
+
+              it('fires newBook event', function() {
+                  var onNewBook = sinon.mock();
+                  myEl.addEventListener('newBook', onNewBook);
+
+                  myEl._newBook();
+
+                  sinon.assert.calledOnce(onNewBook);
+              });
+
 
           });
 

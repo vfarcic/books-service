@@ -34,13 +34,18 @@
         :root {
             --button-color: var(--paper-blue-900);
             --button-background: white;
+            --button-main-color: white;
+            --button-main-background: var(--paper-blue-900);
+            --button-warning-color: white;
+            --button-warning-background: var(--paper-red-a700);
         }
     </style>
 </head>
 <body>
 <div class="layout wrap inline center-center">
     <div>
-        <h1>Book Form</h1>
+        <h1>Book Form </h1>
+        <!--TODO: New Book button-->
         <div class="demo">
             <tc-book-form id="tc-book-form"></tc-book-form>
         </div>
@@ -51,10 +56,6 @@
             <tc-books id="tc-books"></tc-books>
         </div>
     </div>
-    <!--<tc-books id="tc-books-nok"-->
-        <!--request-url="/this/url/does/not/exist"-->
-        <!--request-error-text="This is just a showcase of a situation when a request would fail">-->
-    <!--</tc-books>-->
 </div>
 <paper-toast id="toast" text="[[requestErrorText]]"></paper-toast>
 <script>
@@ -62,16 +63,30 @@
     var tcBookForm = document.querySelector('#tc-book-form');
     var toast = document.querySelector('#toast');
     tcBooks.addEventListener('openBook', onOpenBook);
+    tcBooks.addEventListener('newBook', onNewBook);
     tcBookForm.addEventListener('putBook', onPutBook);
+    tcBookForm.addEventListener('deleteBook', onDeleteBook);
     function onOpenBook(e) {
-        toast.text = '"' + e.detail.title + '" has been selected.';
-        toast.show();
-        tcBookForm.open(e.detail._id);
+        bookOpened(e.detail.title, e.detail._id);
     }
     function onPutBook(e) {
-        toast.text = '"' + e.detail.title + '" has been saved.';
+        bookChanged(e.detail.title, 'saved');
+    }
+    function onDeleteBook(e) {
+        bookChanged(e.detail.title, 'deleted');
+    }
+    function onNewBook() {
+        bookOpened('New book', 0);
+    }
+    function bookChanged(title, status) {
+        toast.text = title + ' has been ' + status + '.';
         toast.show();
         tcBooks.refresh();
+    }
+    function bookOpened(title, id) {
+        toast.text = title + ' has been selected.';
+        toast.show();
+        tcBookForm.open(id);
     }
 </script>
 </body>

@@ -49,6 +49,10 @@
 
           describe('_handleError function', function() {
 
+              it('is defined', function() {
+                  assert.isDefined(myEl._handleError);
+              });
+
               it('calls toast show method', function() {
                   var el = fixture('fixture');
                   el.$.toast.show = sinon.mock();
@@ -70,14 +74,25 @@
 
           describe('_handleGetError function', function() {
 
+              it('is defined', function() {
+                  assert.isDefined(myEl._handleGetError);
+              });
+
               it('calls _handleError', function() {
                   var el = fixture('fixture');
                   el._handleError = sinon.mock();
 
                   el._handleGetError();
 
-                  sinon.assert.calledOnce(el._handleError);
                   sinon.assert.calledWith(el._handleError, 'The book could not be retrieved from the server');
+              });
+
+          });
+
+          describe('getAjax element', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl.$.getAjax);
               });
 
           });
@@ -116,12 +131,33 @@
                   assert.isUndefined(myEl._data._id);
               });
 
+              it('displays delete element when bookId is greater than 0', function() {
+                  myEl.$.delete.hidden = true;
+
+                  myEl.open(429);
+
+                  assert.isFalse(myEl.$.delete.hidden);
+              });
+
+              it('hides delete element when bookId is 0', function() {
+                  myEl.$.delete.hidden = false;
+
+                  myEl.open(0);
+
+                  assert.isTrue(myEl.$.delete.hidden);
+              });
+
           });
 
-          describe('getAjax element', function() {
+          describe('ready function', function() {
 
-              it('is defined', function() {
-                  assert.isDefined(myEl.$.getAjax);
+              it('calls open function', function() {
+                  var el = fixture('fixture');
+                  el.open = sinon.mock();
+
+                  el.ready();
+
+                  sinon.assert.calledWith(el.open, 0);
               });
 
           });
@@ -239,39 +275,19 @@
 
           });
 
-          describe('_computeSubmitText function', function() {
+          describe('submitText property', function() {
 
               it('is defined', function() {
-                  assert.isDefined(myEl._computeSubmitText);
-              });
-
-              it('returns Insert when bookId is 0', function() {
-                  assert.equal(myEl._computeSubmitText(0), 'Insert');
-              });
-
-              it('returns Update when bookId is greater than 0', function() {
-                  assert.equal(myEl._computeSubmitText(123), 'Update');
-              });
-
-          });
-
-          describe('_submitText function', function() {
-
-              it('returns _computeSubmitText value', function() {
-                  var el = fixture('fixture');
-                  var expected = 'Something';
-                  el._computeSubmitText = sinon.mock().returns(expected);
-                  el.set('_data._id', 321);
-
-                  assert.equal(el._submitText, expected);
+                  assert.isString(myEl.submitText);
+                  assert.equal(myEl.submitText, 'Submit');
               });
 
           });
 
           describe('submit element', function() {
 
-              it('binds text to _submitText property', function() {
-                  assert.equal(myEl.$.submit.textContent.trim(), myEl._submitText);
+              it('binds text to submitText property', function() {
+                  assert.equal(myEl.$.submit.textContent.trim(), myEl.submitText);
               });
 
               it('calls _submit function on click', function() {
@@ -287,19 +303,26 @@
 
           describe('_handlePutError function', function() {
 
+              it('is defined', function() {
+                  assert.isDefined(myEl._handlePutError);
+              });
+
               it('calls _handleError', function() {
                   var el = fixture('fixture');
                   el._handleError = sinon.mock();
 
                   el._handlePutError();
 
-                  sinon.assert.calledOnce(el._handleError);
                   sinon.assert.calledWith(el._handleError, 'The book could not be stored in the server');
               });
 
           });
 
           describe('putAjax element', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl.$.putAjax);
+              });
 
               it('sets method to PUT', function() {
                   assert.equal(myEl.$.putAjax.method, 'PUT');
@@ -319,7 +342,11 @@
 
           describe('_handlePutResponse', function() {
 
-              it('should fire putBook event', function() {
+              it('is defined', function() {
+                  assert.isDefined(myEl._handlePutResponse);
+              });
+
+              it('fires putBook event', function() {
                   myEl._data = {something: 'else'};
                   var actual;
                   var onPutBook = sinon.spy(function(e) {
@@ -331,6 +358,14 @@
 
                   sinon.assert.calledOnce(onPutBook);
                   assert.equal(actual, myEl._data);
+              });
+
+              it('displays delete element', function() {
+                  myEl.$.delete.hidden = true;
+
+                  myEl._handlePutResponse();
+
+                  assert.isFalse(myEl.$.delete.hidden);
               });
 
           });
@@ -345,36 +380,39 @@
                   el.$.putAjax.generateRequest = sinon.mock();
               });
 
-              it('should set _data property to putAjax.body', function() {
+              it('sets _data property to putAjax.body', function() {
                   // Should be with _id as number
-                  var expected = JSON.stringify({_id: 123, title: "Book Title"})
+                  var expected = JSON.stringify({_id: 123, title: "Book Title", description: ""});
                   // _data stores _id as string
-                  el._data = {_id: "123", title: "Book Title"};
+                  el._data = {_id: "123", title: "Book Title", description: ""};
 
                   el._submit();
 
                   assert.equal(el.$.putAjax.body, expected);
               });
 
-              it('should call putAjax.generateRequest', function() {
+              it('calls putAjax.generateRequest', function() {
                   el._submit();
 
                   sinon.assert.calledOnce(el.$.putAjax.generateRequest);
               });
 
-              it('should call _handleError when form is invalid', function() {
+              it('calls _handleError when form is invalid', function() {
                   el._handleError = sinon.mock();
                   el.$.form.checkValidity = sinon.mock().returns(false);
 
                   el._submit();
 
-                  sinon.assert.calledOnce(el._handleError);
                   sinon.assert.calledWith(el._handleError, 'At least one field is invalid.');
               });
 
           });
 
           describe('_handleGetResponse function', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl._handleGetResponse);
+              });
 
               it('sets _data property', function() {
                   var expected = {something: 'not seen before'};
@@ -388,6 +426,121 @@
                   myEl._handleGetResponse(event);
 
                   assert.equal(myEl._data, expected);
+              });
+
+          });
+
+          describe('deleteText property', function() {
+
+              it('is defined', function() {
+                  assert.isString(myEl.deleteText);
+                  assert.equal(myEl.deleteText, 'Delete');
+              });
+
+          });
+
+          describe('delete element', function() {
+
+              it('binds to deleteText property', function() {
+                  myEl.deleteText = 'Hello';
+
+                  assert.equal(myEl.$.delete.textContent.trim(), myEl.deleteText);
+              });
+
+              it('calls _delete function when clicked', function() {
+                  var el = fixture('fixture');
+                  el._delete = sinon.mock();
+
+                  el.$.delete.click();
+
+                  sinon.assert.calledOnce(el._delete);
+              });
+
+          });
+
+          describe('deleteAjax element', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl.$.deleteAjax);
+              });
+
+              it('sets method to DELETE', function() {
+                  assert.equal(myEl.$.deleteAjax.method, 'DELETE');
+              });
+
+          });
+
+          describe('_delete function', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl._delete);
+              });
+
+              it('sets deleteAjax.url', function() {
+                  var id = 749;
+                  myEl._data = {_id: id};
+
+                  myEl._delete();
+
+                  assert.equal(myEl.$.deleteAjax.url, myEl.requestUrl + '/_id/' + id);
+              });
+
+              it('calls deleteAjax.generateRequest', function() {
+                  var el = fixture('fixture');
+                  el.$.deleteAjax.generateRequest = sinon.mock();
+
+                  el._delete();
+
+                  sinon.assert.calledOnce(el.$.deleteAjax.generateRequest);
+              });
+
+          });
+
+          describe('_handleDeleteResponse', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl._handleDeleteResponse);
+              });
+
+              it('calls open function', function() {
+                  var el = fixture('fixture');
+                  el.open = sinon.mock();
+
+                  el._handleDeleteResponse();
+
+                  sinon.assert.calledWith(el.open, 0)
+              });
+
+              it('fires deleteBook event', function() {
+                  var data = {something: 'else'};
+                  myEl._data = data;
+                  var actual;
+                  var onDeleteBook = sinon.spy(function(e) {
+                      actual = e.detail;
+                  });
+                  myEl.addEventListener('deleteBook', onDeleteBook);
+
+                  myEl._handleDeleteResponse();
+
+                  sinon.assert.calledOnce(onDeleteBook);
+                  assert.equal(actual, data);
+              });
+
+          });
+
+          describe('_handleDeleteError function', function() {
+
+              it('is defined', function() {
+                  assert.isDefined(myEl._handleDeleteError);
+              });
+
+              it('calls _handleError', function() {
+                  var el = fixture('fixture');
+                  el._handleError = sinon.mock();
+
+                  el._handleDeleteError();
+
+                  sinon.assert.calledWith(el._handleError, 'The book could not be removed from the server');
               });
 
           });

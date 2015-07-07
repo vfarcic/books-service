@@ -8,6 +8,14 @@
             color: var(--button-background);
             background: var(--button-color);
         }
+        .button {
+            color: var(--button-color);
+            background: var(--button-background);
+        }
+        .button:hover {
+            color: var(--button-background);
+            background: var(--button-color);
+        }
     </style>
     <template>
         <iron-ajax id="ajax"
@@ -16,6 +24,9 @@
             last-response="{{ajaxResponse}}"
             on-error="_handleError">
         </iron-ajax>
+        <div style="margin-bottom: 5px;">
+            <paper-button id="newBook" class="button" raised on-tap="_newBook">[[newBookText]]</paper-button>
+        </div>
         <template is="dom-repeat" items="[[ajaxResponse]]">
             <div>
                 <paper-button class="button-flat" on-tap="_openBook">[[item.title]]</paper-button>
@@ -36,6 +47,10 @@
                 requestErrorText: {
                     type: String,
                     value: 'Something, somewhere, went wrong'
+                },
+                newBookText: {
+                    type: String,
+                    value: 'New Book'
                 }
             },
             refresh: function() {
@@ -46,6 +61,9 @@
             },
             _openBook: function(e) {
                 this.fire('openBook', e.model.item);
+            },
+            _newBook: function() {
+                this.fire('newBook');
             }
         });
     })();
