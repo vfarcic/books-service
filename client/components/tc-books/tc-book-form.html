@@ -54,8 +54,8 @@
                              label="Description"
                              value="{{_data.description}}">
                 </paper-input>
-                <paper-button id="delete" class="warningButton" raised on-tap="_delete">[[deleteText]]</paper-button>
-                <paper-button id="submit" class="mainButton" raised on-tap="_submit">[[submitText]]</paper-button>
+                <paper-button id="delete" raised on-tap="_delete">[[deleteText]]</paper-button>
+                <paper-button id="submit" raised on-tap="_submit">[[submitText]]</paper-button>
             </form>
         </div>
         <paper-toast id="toast" text="[[errorText]]"></paper-toast>
