@@ -8,18 +8,29 @@ This repository is used for following articles:
 Docker
 ============
 
-```bash
-docker build \
-    -t vfarcic/books-service-tests \
-    -f Dockerfile.test \
-    .
+Build Tests
+-----------
 
-docker run --rm \
-    -v /data/.ivy2:/root/.ivy2/cache \
-    -v $PWD:/source \
-    -v $PWD/target/scala-2.10:/source/target/scala-2.10 \
-    -v /data/testdb:/data/db \
-    vfarcic/books-service-tests
+```bash
+sudo docker build -t vfarcic/books-service-tests -f Dockerfile.test .
     
-docker build -t vfarcic/books-service .
+sudo docker push vfarcic/books-service-tests
+```
+
+Build Production
+----------------
+
+```bash
+sudo docker-compose run tests
+
+sudo docker build -t vfarcic/books-service .
+
+sudo docker push vfarcic/books-service
+```
+
+Run Front-End Tests Watcher
+---------------------------
+
+```bash
+sudo docker-compose up feTestsWatch
 ```
