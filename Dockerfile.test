@@ -1,5 +1,4 @@
-FROM debian:jessie
-MAINTAINER Viktor Farcic "viktor@farcic.com"
+FROM ubuntu:trusty
 
 ENV VERSION 1.0
 
@@ -18,7 +17,7 @@ RUN echo "deb http://packages.linuxmint.com debian import" >> /etc/apt/sources.l
 
 # Mongo, NodeJS, Git, SBT, xvfb, FireFox
 RUN apt-get update && \
-    apt-get -y install gconf-service libgconf-2-4 libpango1.0-0 libxss1 libxtst6 libappindicator1 xdg-utils libasound2 wget bzip2 make g++ && \
+    apt-get -y install gconf-service libgconf-2-4 libpango1.0-0 libxss1 fonts-liberation libxtst6 libappindicator1 xdg-utils libasound2 wget bzip2 make g++ && \
     apt-get -y --force-yes install --no-install-recommends mongodb nodejs git sbt xvfb firefox && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
