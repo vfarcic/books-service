@@ -1,4 +1,5 @@
 FROM debian:jessie
+MAINTAINER Viktor Farcic "viktor@farcic.com"
 
 # Packages
 RUN apt-get update && \
